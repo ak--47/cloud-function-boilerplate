@@ -1,6 +1,6 @@
 {
 	"jest.runMode": "on-demand",
-	"js/ts.implicitProjectConfig.checkJs": true,
+	"js/ts.implicitProjectConfig.checkJs": false,
 	"jest.jestCommandLine": "npm run test --",
 	"cSpell.words": [
 		"waystation"
