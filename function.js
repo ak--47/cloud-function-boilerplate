@@ -44,7 +44,8 @@ http('http-entry', async (req, res) => {
 
 		// @ts-ignore
 		const result = await job(body);
-		sLog(`FINISH: ${req.path} ... ${t.end()}`, result);
+		t.end()
+		sLog(`FINISH: ${req.path} ... ${t.report(false).human}`, result);
 
 		//finished
 		res.status(200);
