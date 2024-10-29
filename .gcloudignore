@@ -5,6 +5,7 @@ fire.sh
 sample-event.json
 scratch.js
 .vscode
+.env
 
 
 
