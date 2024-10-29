@@ -7,3 +7,4 @@ tmp/*
 logs/*
 !logs/.gitkeep
 .env
+.env.yaml

@@ -10,9 +10,9 @@ beforeAll(async () => {
 });
 
 
-test("/", async () => {
+test("/ping", async () => {
 	const testCase = {
-		path: "/"
+		path: "/ping"
 	};
 
 	let result;
@@ -32,9 +32,12 @@ test("/", async () => {
 	// invoke the function
 	await func(prepReq(testCase), res);
 	expect(status).toBe(200);
-	expect(result).toEqual({ status: "ok", message: "service is alive" });
+	expect(result).toEqual({ status: "ok", message: "service is alive", echo: {} });
 	// expect(result.message).toEqual('pong');
 });
+
+
+
 //ensure request is well formed
 function prepReq(req) {
 	return {
@@ -49,7 +52,7 @@ function prepReq(req) {
 
 
 
-test('do tests work', async()=>{
-	expect(1).toBe(1)
+test('do tests work', async () => {
+	expect(1).toBe(1);
 })
 
