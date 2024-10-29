@@ -10,8 +10,6 @@ beforeAll(async () => {
 });
 
 
-
-
 test("/", async () => {
 	const testCase = {
 		path: "/"

@@ -1,9 +1,18 @@
 import { cloudEvent, http } from '@google-cloud/functions-framework';
 import { Storage } from '@google-cloud/storage';
-import { tmpdir } from 'os';
 import { sLog, uid, timer } from 'ak-tools';
 import dotenv from 'dotenv';
 dotenv.config();
+const { NODE_ENV = "" } = process.env;
+if (!NODE_ENV) throw new Error("NODE_ENV is required");
+import path from 'path';
+import { tmpdir } from 'os';
+let TEMP_DIR;
+if (NODE_ENV === 'dev') TEMP_DIR = './tmp';
+else TEMP_DIR = tmpdir();
+TEMP_DIR = path.resolve(TEMP_DIR);
+
+
 
 /**
  * @typedef {Object} Params
@@ -11,15 +20,6 @@ dotenv.config();
  * @property {number} [bar] - Description of bar
  */
 
-/** @typedef {'/' | '/foo'} Endpoints  */
-
-
-const { NODE_ENV = "" } = process.env;
-if (!NODE_ENV) throw new Error("NODE_ENV is required");
-
-const storage = new Storage();
-const bucket = storage.bucket('ak-bucky');
-const tmp = NODE_ENV === 'dev' ? './tmp' : tmpdir();
 
 
 // http entry point
@@ -61,35 +61,14 @@ http('http-entry', async (req, res) => {
 });
 
 
-// cloud event entry point
-// ? https://cloud.google.com/functions/docs/writing/write-event-driven-functions
-cloudEvent('event-entry', async (cloudEvent) => {
-	const { data } = cloudEvent;
-	const runId = uid();
-	const reqData = { data, runId };
-	let response = {};
-	const t = timer('job');
-	t.start();
-	sLog(`START`, reqData);
-
-	try {
-		const result = await main(data);
-		sLog(`FINISH ${t.end()}`, { ...result, runId });
-		response = result;
-
-	} catch (e) {
-		console.error(`ERROR! ${e.message || "unknown"}`, e);
-		response = { error: e };
-	}
-
-	return response;
-
-});
-
-async function main(data) {
-	return Promise.resolve({ status: "ok", message: "service is alive" });
+async function ping(data) {
+	return Promise.resolve({ status: "ok", message: "service is alive", echo: data });
 }
 
+
+async function main(data) {
+	return Promise.resolve({ status: "ok", message: "service is alive", echo: data });
+}
 
 
 /*
@@ -97,6 +76,9 @@ async function main(data) {
 ROUTER
 ----
 */
+
+
+/** @typedef {'/' | '/ping'} Endpoints  */
 
 /**
  * determine routes based on path in request
@@ -106,10 +88,36 @@ function route(path) {
 	switch (path) {
 		case "/":
 			return [main];
-		case "/foo":
-			return [() => { }];
+		case "/ping":
+			return [ping];
 		default:
 			throw new Error(`Invalid path: ${path}`);
 	}
 }
 
+
+
+// cloud event entry point
+// ? https://cloud.google.com/functions/docs/writing/write-event-driven-functions
+// cloudEvent('entry', async (cloudEvent) => {
+// 	const { data } = cloudEvent;
+// 	const runId = uid();
+// 	const reqData = { data, runId };
+// 	let response = {};
+// 	const t = timer('job');
+// 	t.start();
+// 	sLog(`START`, reqData);
+
+// 	try {
+// 		const result = await main(data);
+// 		sLog(`FINISH ${t.end()}`, { ...result, runId });
+// 		response = result;
+
+// 	} catch (e) {
+// 		console.error(`ERROR! ${e.message || "unknown"}`, e);
+// 		response = { error: e };
+// 	}
+
+// 	return response;
+
+// });

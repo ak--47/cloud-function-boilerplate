@@ -3,6 +3,6 @@
 	"js/ts.implicitProjectConfig.checkJs": false,
 	"jest.jestCommandLine": "npm run test --",
 	"cSpell.words": [
-		"waystation"
+		
 	]
 }
