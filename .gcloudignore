@@ -6,6 +6,8 @@ sample-event.json
 scratch.js
 .vscode
 .env
+service-account.json
+credentials.json
 
 
 

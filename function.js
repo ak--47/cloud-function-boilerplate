@@ -11,6 +11,7 @@ let TEMP_DIR;
 if (NODE_ENV === 'dev') TEMP_DIR = './tmp';
 else TEMP_DIR = tmpdir();
 TEMP_DIR = path.resolve(TEMP_DIR);
+const SERVICE_NAME = 'my-service';
 
 
 
@@ -26,7 +27,8 @@ TEMP_DIR = path.resolve(TEMP_DIR);
 // ? https://cloud.google.com/functions/docs/writing/write-http-functions
 http('http-entry', async (req, res) => {
 	const runId = uid();
-	const reqData = { url: req.url, method: req.method, headers: req.headers, body: req.body, runId };
+	const reqData = { url: req.url, method: req.method, headers: req.headers, body: req.body, query: req.query, runId };
+	delete reqData.headers.authorization;
 	let response = {};
 
 	try {
@@ -35,9 +37,18 @@ http('http-entry', async (req, res) => {
 		/** @type {Endpoints} */
 		const { path } = req;
 
+		for (const key in req.query || {}) {
+			let value = req.query[key];
+			if (value === 'true') value = true;
+			if (value === 'false') value = false;
+			if (value === 'null') value = null;
+			body[key] = value;
+		}
+
+
 		const t = timer('job');
 		t.start();
-		sLog(`START: ${req.path}`, reqData);
+		sLog(`${SERVICE_NAME} REQ: ${req.path}`, reqData);
 
 		//setup the job
 		const [job] = route(path);
@@ -45,7 +56,7 @@ http('http-entry', async (req, res) => {
 		// @ts-ignore
 		const result = await job(body);
 		t.end()
-		sLog(`FINISH: ${req.path} ... ${t.report(false).human}`, result);
+		sLog(`${SERVICE_NAME} RES: ${req.path} ... ${t.report(false).human}`, result);
 
 		//finished
 		res.status(200);
@@ -53,7 +64,7 @@ http('http-entry', async (req, res) => {
 
 
 	} catch (e) {
-		console.error(`ERROR JOB: ${req.path}`, e);
+		console.error(`${SERVICE_NAME} ERROR: ${req.path}`, e);
 		res.status(500);
 		response = { error: e };
 	}
@@ -61,13 +72,13 @@ http('http-entry', async (req, res) => {
 });
 
 
-async function ping(data) {
+async function pong(data) {
 	return Promise.resolve({ status: "ok", message: "service is alive", echo: data });
 }
 
 
 async function main(data) {
-	return Promise.resolve({ status: "ok", message: "service is alive", echo: data });
+	return {};
 }
 
 
@@ -89,7 +100,7 @@ function route(path) {
 		case "/":
 			return [main];
 		case "/ping":
-			return [ping];
+			return [pong];
 		default:
 			throw new Error(`Invalid path: ${path}`);
 	}
