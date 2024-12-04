@@ -20,7 +20,6 @@
   "license": "ISC",
   "description": "AK's cloud function boilerplate",
   "dependencies": {
-    "@atproto/api": "^0.13.18",
     "@google-cloud/functions-framework": "^3.4.2",
     "@google-cloud/storage": "^7.12.0",
     "ak-fetch": "^1.0.6",
