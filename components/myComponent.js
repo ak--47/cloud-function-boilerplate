@@ -13,8 +13,7 @@ let TEMP_DIR;
 if (NODE_ENV === 'dev') TEMP_DIR = './tmp';
 else TEMP_DIR = tmpdir();
 TEMP_DIR = path.resolve(TEMP_DIR);
-import u from 'ak-tools';
-import fetch from "ak-fetch";
+
 
 
 export async function doAThing() {

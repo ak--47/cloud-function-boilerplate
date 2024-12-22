@@ -8,6 +8,13 @@ scratch.js
 .env
 service-account.json
 credentials.json
+types.d.ts
+scripts
+tests
+jsconfig.json
+.gitignore
+.prettierrc
+scratch.js
 
 
 
