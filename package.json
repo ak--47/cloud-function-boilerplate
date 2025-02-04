@@ -22,10 +22,12 @@
   "description": "AK's cloud function boilerplate",
   "dependencies": {
     "@google-cloud/functions-framework": "^3.4.4",
+    "@google-cloud/logging-winston": "^6.0.0",
     "@google-cloud/storage": "^7.12.0",
     "ak-fetch": "^1.0.892",
     "ak-tools": "^1.0.696911",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",

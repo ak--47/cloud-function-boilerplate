@@ -13,6 +13,25 @@ else TEMP_DIR = tmpdir();
 TEMP_DIR = path.resolve(TEMP_DIR);
 const SERVICE_NAME = 'my-service';
 
+import winston from 'winston';
+import { LoggingWinston } from '@google-cloud/logging-winston';
+const loggingWinston = new LoggingWinston({ prefix: NODE_ENV });
+const logger = winston.createLogger({
+	level: 'info',
+	format: winston.format.combine(
+		winston.format.timestamp(),  // Add timestamps
+		winston.format.errors({ stack: true }),  // Log error stack traces
+		winston.format.json()  // Structured JSON logging
+	),
+	transports: []
+});
+
+if (NODE_ENV === 'production') logger.add(loggingWinston);
+if (NODE_ENV !== 'production') logger.add(new winston.transports.Console({
+	format: winston.format.colorize({ all: true })
+}));
+
+
 
 
 /**
@@ -30,6 +49,7 @@ const SERVICE_NAME = 'my-service';
 http('entry', async (req, res) => {
 	const runId = uid();
 	const reqData = { url: req.url, method: req.method, headers: req.headers, body: req.body, query: req.query, runId };
+	const log = createLogger({ reqData });
 	delete reqData.headers.authorization;
 	let response = {};
 
@@ -60,7 +80,8 @@ http('entry', async (req, res) => {
 
 		const t = timer('job');
 		t.start();
-		sLog(`${SERVICE_NAME} REQ: ${req.path}`, reqData);
+		log.info(`${req.path} START`);
+
 
 		//setup the job
 		const [job] = route(path);
@@ -68,15 +89,16 @@ http('entry', async (req, res) => {
 		const result = await job(body);
 		t.end();
 
-		sLog(`${SERVICE_NAME} RES: ${req.path} ... ${t.report(false).human}`, result);
-
+		const { delta, human } = t.report(false);
+		log.info(`${req.path} FINISH`, { duration: delta, time: human });
+		
 		//finished
 		res.status(200);
 		response = result;
 
 
 	} catch (e) {
-		console.error(`${SERVICE_NAME} ERROR: ${req.path}`, e);
+		log.error(`${req.path} ERROR`, { error: e });
 		res.status(500);
 		response = { error: e };
 	}
@@ -119,6 +141,17 @@ async function main(data) {
 	return {};
 }
 
+function createLogger(data) {
+	const { runId = null, ...rest } = data;
+	const result = logger.child({
+		trace: {
+			runId,
+			service: SERVICE_NAME
+		},
+		...rest
+	});
+	return result;
+}
 
 /**
  * determine routes based on path in request
