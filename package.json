@@ -4,9 +4,10 @@
   "main": "function.js",
   "private": true,
   "scripts": {
+	"start": "node server.js",
     "local": "./scripts/local.sh",
     "fire": "./scripts/fire.sh",
-    "deploy": "./scripts/deploy.sh",
+    "deploy": "./scripts/deploy-all.sh",
     "perms": "chmod +x ./scripts/*.sh",
     "prune": "rm -rf tmp/*",
     "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js"
@@ -27,6 +28,8 @@
     "ak-fetch": "^1.0.892",
     "ak-tools": "^1.0.696911",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1",
     "winston": "^3.17.0"
   },
   "devDependencies": {

@@ -1,0 +1,8 @@
+{
+	"coverageDirectory": "/tests/coverage",
+	"testTimeout": 180000,
+	"setupFiles": [
+		"<rootDir>/jest.setup.js"
+	],
+	"verbose": true
+}
